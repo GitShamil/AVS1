@@ -134,46 +134,41 @@ main:
 	mov	DWORD PTR -4[rbp], 0			# i = 0
 	jmp	.L14					# start circle
 .L15:
-	mov	eax, DWORD PTR -4[rbp]
-	cdqe
-	lea	rdx, 0[0+rax*4]
-	lea	rax, A[rip]
-	add	rdx, rax
-	mov	rax, QWORD PTR -16[rbp]
-	lea	rcx, .LC1[rip]
-	mov	rsi, rcx
-	mov	rdi, rax
+	mov	eax, DWORD PTR -4[rbp]			# eax = i
+	lea	rdx, 0[0+rax*4]				# movement for A array
+	lea	rax, A[rip]				# rax = A
+	add	rdx, rax				# rdx = A + i*4
+	mov	rdi, QWORD PTR -16[rbp]			# rdi = input
+	lea	rsi, .LC1[rip]				# rcx = "%d"
 	mov	eax, 0
-	call	__isoc99_fscanf@PLT
-	add	DWORD PTR -4[rbp], 1
+	call	__isoc99_fscanf@PLT			# get A[i] from file
+	add	DWORD PTR -4[rbp], 1			# ++i
 .L14:
 	mov	eax, DWORD PTR -52[rbp]			# eax = length
-	cmp	DWORD PTR -4[rbp], eax
-	jl	.L15
-	jmp	.L9
-.L10:
+	cmp	DWORD PTR -4[rbp], eax			# compare i and length
+	jl	.L15					# i<length
+	jmp	.L9					# else
+.L10:							# random input
 	mov	rax, QWORD PTR -80[rbp]
-	add	rax, 8
-	mov	rax, QWORD PTR [rax]
-	mov	rdi, rax
+	add	rax, 8					# rdi = &argv[1]
+	mov	rdi, QWORD PTR [rax]			# rdi = argv[1]
 	call	atoi@PLT
-	cmp	eax, 2
+	cmp	eax, 2					# compare atoi(argv[1]] and 2)
 	jne	.L9
-	mov	edi, 0
-	call	time@PLT
-	mov	edi, eax
-	call	srand@PLT
+	mov	edi, 0					# edi = 0
+	call	time@PLT				# time(NULL)
+	mov	edi, eax				# rdi = seed for rand()
+	call	srand@PLT				
 	call	rand@PLT
-	mov	DWORD PTR -52[rbp], eax
-	mov	ecx, DWORD PTR -52[rbp]
-	movsx	rax, ecx
+	mov	DWORD PTR -52[rbp], eax			# length = random number that rand give to us
+	mov	ecx, DWORD PTR -52[rbp]			# rcx = length
 	imul	rax, rax, 1717986919
 	shr	rax, 32
 	sar	eax, 2
 	mov	esi, ecx
 	sar	esi, 31
 	sub	eax, esi
-	mov	edx, eax
+	mov	edx, eax				# making lenght = lenght%10 +1
 	mov	eax, edx
 	sal	eax, 2
 	add	eax, edx
@@ -181,76 +176,70 @@ main:
 	sub	ecx, eax
 	mov	edx, ecx
 	lea	eax, 1[rdx]
-	mov	DWORD PTR -52[rbp], eax
-	mov	DWORD PTR -4[rbp], 0
-	jmp	.L16
+	mov	DWORD PTR -52[rbp], eax			# lenght now [1,10]
+	mov	DWORD PTR -4[rbp], 0			# i = 0
+	jmp	.L16					# start circle
 .L17:
-	call	rand@PLT
-	mov	edx, DWORD PTR -4[rbp]
-	movsx	rdx, edx
-	lea	rcx, 0[0+rdx*4]
-	lea	rdx, A[rip]
-	mov	DWORD PTR [rcx+rdx], eax
-	add	DWORD PTR -4[rbp], 1
+	call	rand@PLT				# rax = rand()
+	mov	edx, DWORD PTR -4[rbp]			# rdx = i			
+	lea	rcx, 0[0+rdx*4]				# movement
+	lea	rdx, A[rip]				# rdx = A
+	mov	DWORD PTR [rcx+rdx], eax		# A[i] = random data from eax
+	add	DWORD PTR -4[rbp], 1			#++i
 .L16:
-	mov	eax, DWORD PTR -52[rbp]
-	cmp	DWORD PTR -4[rbp], eax
+	mov	eax, DWORD PTR -52[rbp]			# eax = length 
+	cmp	DWORD PTR -4[rbp], eax			# compare i and length
 	jl	.L17
 .L9:
-	call	clock@PLT
-	mov	QWORD PTR -24[rbp], rax
-	mov	DWORD PTR -4[rbp], 0
+	call	clock@PLT				# start time
+	mov	QWORD PTR -24[rbp], rax			# start = rax 
+	mov	DWORD PTR -4[rbp], 0			# i = 0
+	mov 	r14d, DWORD PTR -52[rbp]	        # r14d = length
+	mov 	r15d, DWORD PTR -4[rbp]			# r15d = i
 	jmp	.L18
 .L19:
-	mov	eax, DWORD PTR -52[rbp]
+	mov	eax, r14d				# rax = lenght
 	mov	edi, eax
 	call	countArrayB@PLT
-	add	DWORD PTR -4[rbp], 1
+	add	r15d, 1	
 .L18:
-	cmp	DWORD PTR -4[rbp], 199999999
-	jle	.L19
-	call	clock@PLT
-	mov	QWORD PTR -32[rbp], rax
-	mov	rax, QWORD PTR -32[rbp]
-	sub	rax, QWORD PTR -24[rbp]
+	cmp	r15d, 199999999				# compare i and length of circle
+	jle	.L19		
+	call	clock@PLT				# end of time
+	mov	QWORD PTR -32[rbp], rax			# end = rax
+	sub	rax, QWORD PTR -24[rbp]			# begin of calculation time_spent
 	pxor	xmm0, xmm0
 	cvtsi2sd	xmm0, rax
 	movsd	xmm1, QWORD PTR .LC6[rip]
 	divsd	xmm0, xmm1
-	movsd	QWORD PTR -40[rbp], xmm0
-	cmp	DWORD PTR -68[rbp], 1
-	jle	.L20
+	movsd	QWORD PTR -40[rbp], xmm0		# end of calcualtion time_spent
+	cmp	DWORD PTR -68[rbp], 1			# argc vs 1 
+	jle	.L20					# if argc<=1 go cout to console
 	mov	rax, QWORD PTR -80[rbp]
 	add	rax, 8
-	mov	rax, QWORD PTR [rax]
+	mov	rax, QWORD PTR [rax]			# check second condition 
 	mov	rdi, rax
 	call	atoi@PLT
 	cmp	eax, 1
-	jne	.L20
-	lea	rax, .LC7[rip]
-	mov	rsi, rax
-	lea	rax, .LC8[rip]
-	mov	rdi, rax
+	jne	.L20					# if argv[1] != 1 then go to output to console
+	lea	rsi, .LC7[rip]				# rsi = "w"
+	lea	rdi, .LC8[rip]				# rdi = "output.txt"
 	call	fopen@PLT
-	mov	QWORD PTR -48[rbp], rax
-	mov	rdx, QWORD PTR -40[rbp]
-	mov	rax, QWORD PTR -48[rbp]
-	movq	xmm0, rdx
-	lea	rdx, .LC9[rip]
-	mov	rsi, rdx
+	mov	QWORD PTR -48[rbp], rax			# ouput = rax
+	movq	xmm0, QWORD PTR -40[rbp]		# xmm0 = time_spent				
+	lea	rsi, .LC9[rip]			 	# rsi = & .time_spent
 	mov	rdi, rax
-	mov	eax, 1
+	mov	eax, 1					# eax = 1 show that there's double
 	call	fprintf@PLT
-	mov	DWORD PTR -4[rbp], 0
+	mov	DWORD PTR -4[rbp], 0			# i = 0
 	jmp	.L21
 .L22:
 	mov	eax, DWORD PTR -4[rbp]
 	cdqe
 	lea	rdx, 0[0+rax*8]
 	lea	rax, B[rip]
-	mov	rdx, QWORD PTR [rdx+rax]
+	movq	xmm0, QWORD PTR [rdx+rax]
 	mov	rax, QWORD PTR -48[rbp]
-	movq	xmm0, rdx
 	lea	rdx, .LC10[rip]
 	mov	rsi, rdx
 	mov	rdi, rax
@@ -258,12 +247,12 @@ main:
 	call	fprintf@PLT
 	add	DWORD PTR -4[rbp], 1
 .L21:
-	mov	eax, DWORD PTR -52[rbp]
+	mov	eax, DWORD PTR -52[rbp]			# upper just circle of ouput to console
 	cmp	DWORD PTR -4[rbp], eax
 	jl	.L22
 	mov	eax, 0
 	jmp	.L25
-.L20:
+.L20:							# output to console
 	mov	rax, QWORD PTR -40[rbp]
 	movq	xmm0, rax
 	lea	rax, .LC9[rip]
