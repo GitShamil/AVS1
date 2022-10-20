@@ -247,18 +247,17 @@ main:
 	call	fprintf@PLT
 	add	DWORD PTR -4[rbp], 1
 .L21:
-	mov	eax, DWORD PTR -52[rbp]			# upper just circle of ouput to console
+	mov	eax, DWORD PTR -52[rbp]			# upper just circle of ouput to output.txt
 	cmp	DWORD PTR -4[rbp], eax
 	jl	.L22
 	mov	eax, 0
 	jmp	.L25
 .L20:							# output to console
-	mov	rax, QWORD PTR -40[rbp]
-	movq	xmm0, rax
+	movq	xmm0, QWORD PTR -40[rbp]
 	lea	rax, .LC9[rip]
 	mov	rdi, rax
 	mov	eax, 1
-	call	printf@PLT
+	call	printf@PLT				# just output info about time_spent
 	mov	DWORD PTR -4[rbp], 0
 	jmp	.L23
 .L24:
@@ -275,11 +274,11 @@ main:
 	add	DWORD PTR -4[rbp], 1
 .L23:
 	mov	eax, DWORD PTR -52[rbp]
-	cmp	DWORD PTR -4[rbp], eax
+	cmp	DWORD PTR -4[rbp], eax			# just output to console array B
 	jl	.L24
 	mov	eax, 0
 .L25:
-	leave
+	leave						# end of program
 	ret
 	.size	main, .-main 				# programm part that's not interesting for us and i
 	.section	.rodata				# i tried to delete but it create problems
